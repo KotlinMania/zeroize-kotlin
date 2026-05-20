@@ -2,6 +2,7 @@
 package io.github.kotlinmania.zeroize
 
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -49,5 +50,65 @@ class ZeroizingTest {
     fun isZeroizeOnDrop() {
         val wrapper: ZeroizeOnDrop = Zeroizing(Counter())
         assertTrue(wrapper is Zeroize)
+    }
+
+    @Test
+    fun zeroizeByteArrays() {
+        val arr = ByteArray(137) { 42 }
+        arr.zeroize()
+        assertContentEquals(ByteArray(137), arr)
+    }
+
+    @Test
+    fun zeroizeNumericArrays() {
+        val shorts = ShortArray(3) { 42 }
+        val ints = IntArray(3) { 42 }
+        val longs = LongArray(3) { 42L }
+        val floats = FloatArray(3) { 42.0f }
+        val doubles = DoubleArray(3) { 42.0 }
+
+        shorts.zeroize()
+        ints.zeroize()
+        longs.zeroize()
+        floats.zeroize()
+        doubles.zeroize()
+
+        assertContentEquals(ShortArray(3), shorts)
+        assertContentEquals(IntArray(3), ints)
+        assertContentEquals(LongArray(3), longs)
+        assertContentEquals(FloatArray(3), floats)
+        assertContentEquals(DoubleArray(3), doubles)
+    }
+
+    @Test
+    fun zeroizeTextAndBooleanArrays() {
+        val chars = charArrayOf('s', 'e', 'c', 'r', 'e', 't')
+        val booleans = BooleanArray(3) { true }
+
+        chars.zeroize()
+        booleans.zeroize()
+
+        assertContentEquals(CharArray(6), chars)
+        assertContentEquals(BooleanArray(3), booleans)
+    }
+
+    @Test
+    fun zeroizeObjectArrays() {
+        val arr = arrayOf(Counter(), Counter())
+        arr.zeroize()
+        assertEquals(listOf(1, 1), arr.map { it.zeroizeCalls })
+    }
+
+    @Test
+    fun zeroizeMutableListClearsElementsAndList() {
+        val first = Counter()
+        val second = Counter()
+        val list = mutableListOf(first, second)
+
+        list.zeroize()
+
+        assertTrue(list.isEmpty())
+        assertEquals(1, first.zeroizeCalls)
+        assertEquals(1, second.zeroizeCalls)
     }
 }
