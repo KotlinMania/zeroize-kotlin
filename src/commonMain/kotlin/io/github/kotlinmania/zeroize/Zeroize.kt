@@ -1,11 +1,11 @@
-// port-lint: source src/lib.rs
+// port-lint: source lib.rs
 package io.github.kotlinmania.zeroize
 
 /**
  * Securely erase values from memory with a simple interface ([Zeroize]) built
  * on primitives which guarantee the operation will not be "optimized away".
  *
- * ## About
+ * About.
  *
  * Zeroing memory securely is hard — compilers optimize for performance, and in
  * doing so they love to "optimize away" unnecessary zeroing calls. There are
@@ -19,7 +19,7 @@ package io.github.kotlinmania.zeroize
  * - No insecure fallbacks.
  * - No dependencies.
  *
- * ## Usage
+ * Usage.
  *
  * ```
  * // Protip: don't embed secrets in your source code. This is just an example.
@@ -34,7 +34,7 @@ package io.github.kotlinmania.zeroize
  * functions, and for any type whose [Default]-like zero value is known via
  * [DefaultIsZeroes].
  *
- * ## [Zeroizing]: wrapper for zeroizing arbitrary values on cleanup
+ * [Zeroizing]: wrapper for zeroizing arbitrary values on cleanup.
  *
  * [Zeroizing] is a generic wrapper type that exposes an inner value of type
  * `Z` and implements [AutoCloseable.close] by calling [zeroize] on its
@@ -52,7 +52,7 @@ package io.github.kotlinmania.zeroize
  * }
  * ```
  *
- * ## What guarantees does this library provide?
+ * What guarantees does this library provide?
  *
  * This library guarantees the following:
  *
@@ -64,7 +64,7 @@ package io.github.kotlinmania.zeroize
  * library makes no guarantees that zeroized values cannot be leaked through
  * such channels, as they represent flaws in the underlying hardware.
  *
- * ## Stack/Heap Zeroing Notes
+ * Stack and heap zeroing notes.
  *
  * This library can be used to zero values from either the stack or the heap.
  *
@@ -81,7 +81,7 @@ package io.github.kotlinmania.zeroize
  * when attempting to zeroize such buffers to initialize them to the correct
  * capacity, and take care to prevent subsequent reallocation.
  *
- * ## What about: clearing registers, mlock, mprotect, etc.?
+ * What about: clearing registers, mlock, mprotect, etc.?
  *
  * This library is focused on providing simple, unobtrusive support for
  * reliably zeroing memory using the best approach possible.
@@ -103,4 +103,106 @@ interface Zeroize {
      * zeroization operation is not "optimized away" by the compiler.
      */
     fun zeroize()
+}
+
+/**
+ * Use a compiler-visible boundary after zeroization. Kotlin common code does
+ * not expose volatile write or compiler fence primitives directly, so the
+ * common implementation keeps the operation explicit at each call site and
+ * centralizes the post-write boundary here.
+ */
+private fun atomicFence() {
+    kotlin.concurrent.atomics.AtomicInt(0).store(0)
+}
+
+/** Zeroize every element in this byte array. */
+fun ByteArray.zeroize() {
+    fill(0)
+    atomicFence()
+}
+
+/** Zeroize every element in this short array. */
+fun ShortArray.zeroize() {
+    fill(0)
+    atomicFence()
+}
+
+/** Zeroize every element in this int array. */
+fun IntArray.zeroize() {
+    fill(0)
+    atomicFence()
+}
+
+/** Zeroize every element in this long array. */
+fun LongArray.zeroize() {
+    fill(0L)
+    atomicFence()
+}
+
+/** Zeroize every element in this unsigned byte array. */
+fun UByteArray.zeroize() {
+    fill(0u)
+    atomicFence()
+}
+
+/** Zeroize every element in this unsigned short array. */
+fun UShortArray.zeroize() {
+    fill(0u)
+    atomicFence()
+}
+
+/** Zeroize every element in this unsigned int array. */
+fun UIntArray.zeroize() {
+    fill(0u)
+    atomicFence()
+}
+
+/** Zeroize every element in this unsigned long array. */
+fun ULongArray.zeroize() {
+    fill(0u)
+    atomicFence()
+}
+
+/** Zeroize every element in this boolean array. */
+fun BooleanArray.zeroize() {
+    fill(false)
+    atomicFence()
+}
+
+/** Zeroize every element in this char array. */
+fun CharArray.zeroize() {
+    fill('\u0000')
+    atomicFence()
+}
+
+/** Zeroize every element in this float array. */
+fun FloatArray.zeroize() {
+    fill(0.0f)
+    atomicFence()
+}
+
+/** Zeroize every element in this double array. */
+fun DoubleArray.zeroize() {
+    fill(0.0)
+    atomicFence()
+}
+
+/** Zeroize every element in this array. */
+fun <Z : Zeroize> Array<Z>.zeroize() {
+    for (element in this) {
+        element.zeroize()
+    }
+    atomicFence()
+}
+
+/**
+ * Zeroize all owned elements in this mutable list and then clear the list,
+ * mirroring the upstream growable-buffer behavior.
+ */
+fun <Z : Zeroize> MutableList<Z>.zeroize() {
+    for (element in this) {
+        element.zeroize()
+    }
+    clear()
+    atomicFence()
 }
