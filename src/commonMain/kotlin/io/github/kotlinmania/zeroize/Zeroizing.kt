@@ -14,6 +14,38 @@ class Zeroizing<Z : Zeroize>
  * zeroized when it is closed.
  */
 constructor(val value: Z) : Zeroize, ZeroizeOnDrop, AutoCloseable {
+    public companion object {
+        /**
+         * Move [value] inside a [Zeroizing] wrapper which ensures it will be
+         * zeroized when the wrapper is closed.
+         */
+        public fun <Z : Zeroize> new(value: Z): Zeroizing<Z> = Zeroizing(value)
+
+        /**
+         * Convert [value] into a [Zeroizing] wrapper.
+         */
+        public fun <Z : Zeroize> from(value: Z): Zeroizing<Z> = Zeroizing(value)
+    }
+
+    /**
+     * Return the wrapped value by reference.
+     */
+    public fun deref(): Z = value
+
+    /**
+     * Return the wrapped value for mutation.
+     */
+    public fun derefMut(): Z = value
+
+    /**
+     * Return the wrapped value by reference.
+     */
+    public fun asRef(): Z = value
+
+    /**
+     * Return the wrapped value for mutation.
+     */
+    public fun asMut(): Z = value
 
     override fun zeroize() {
         value.zeroize()
