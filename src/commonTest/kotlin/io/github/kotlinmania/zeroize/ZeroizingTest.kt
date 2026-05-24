@@ -4,6 +4,7 @@ package io.github.kotlinmania.zeroize
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 private class Counter(var zeroizeCalls: Int = 0) : Zeroize {
@@ -16,8 +17,26 @@ class ZeroizingTest {
     @Test
     fun newExposesValue() {
         val inner = Counter()
+        val wrapper = Zeroizing.new(inner)
+        assertSame(inner, wrapper.value)
+    }
+
+    @Test
+    fun fromExposesValue() {
+        val inner = Counter()
+        val wrapper = Zeroizing.from(inner)
+        assertSame(inner, wrapper.value)
+    }
+
+    @Test
+    fun referenceAccessorsExposeValue() {
+        val inner = Counter()
         val wrapper = Zeroizing(inner)
-        assertEquals(inner, wrapper.value)
+
+        assertSame(inner, wrapper.deref())
+        assertSame(inner, wrapper.derefMut())
+        assertSame(inner, wrapper.asRef())
+        assertSame(inner, wrapper.asMut())
     }
 
     @Test
