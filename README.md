@@ -95,7 +95,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 
 ```kotlin
 dependencies {
-    implementation("io.github.kotlinmania:zeroize-kotlin:0.1.0")
+    implementation("io.github.kotlinmania:zeroize-kotlin:0.1.1")
 }
 ```
 
@@ -121,7 +121,7 @@ dependencies {
 
 ### Porting guidelines
 
-See [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) for translator discipline, port-lint header convention, and Rust → Kotlin idiom mapping.
+See [AGENTS.md](AGENTS.md) for translator discipline, port-lint header convention, and Rust -> Kotlin idiom mapping.
 
 ### License
 

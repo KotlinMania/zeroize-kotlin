@@ -1,5 +1,13 @@
 // port-lint: source lib.rs
+@file:OptIn(
+    ExperimentalUnsignedTypes::class,
+    kotlin.experimental.ExperimentalObjCRefinement::class,
+)
+
 package io.github.kotlinmania.zeroize
+
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.native.HiddenFromObjC
 
 /**
  * Securely erase values from memory with a simple interface ([Zeroize]) built
@@ -112,7 +120,8 @@ interface Zeroize {
  * centralizes the post-write boundary here.
  */
 private fun atomicFence() {
-    kotlin.concurrent.atomics.AtomicInt(0).store(0)
+    val fence = AtomicInt(0)
+    fence.store(0)
 }
 
 /** Zeroize every element in this byte array. */
@@ -140,24 +149,28 @@ fun LongArray.zeroize() {
 }
 
 /** Zeroize every element in this unsigned byte array. */
+@HiddenFromObjC
 fun UByteArray.zeroize() {
     fill(0u)
     atomicFence()
 }
 
 /** Zeroize every element in this unsigned short array. */
+@HiddenFromObjC
 fun UShortArray.zeroize() {
     fill(0u)
     atomicFence()
 }
 
 /** Zeroize every element in this unsigned int array. */
+@HiddenFromObjC
 fun UIntArray.zeroize() {
     fill(0u)
     atomicFence()
 }
 
 /** Zeroize every element in this unsigned long array. */
+@HiddenFromObjC
 fun ULongArray.zeroize() {
     fill(0u)
     atomicFence()

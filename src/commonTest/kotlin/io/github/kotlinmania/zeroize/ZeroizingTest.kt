@@ -7,7 +7,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-private class Counter(var zeroizeCalls: Int = 0) : Zeroize {
+private class Counter(
+    var zeroizeCalls: Int = 0,
+) : Zeroize {
     override fun zeroize() {
         zeroizeCalls += 1
     }
