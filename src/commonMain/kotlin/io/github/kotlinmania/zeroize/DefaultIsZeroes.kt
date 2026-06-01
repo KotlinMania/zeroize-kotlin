@@ -1,5 +1,9 @@
 // port-lint: source lib.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.zeroize
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * Marker interface for types whose default value is the desired zeroization
@@ -9,6 +13,7 @@ package io.github.kotlinmania.zeroize
  * generic [Zeroize] extension for [DefaultIsZeroes] overwrites the receiver's
  * mutable storage with that value.
  */
+@HiddenFromObjC
 interface DefaultIsZeroes<T : DefaultIsZeroes<T>> {
     /** The value used to overwrite this type when zeroizing. */
     val defaultZero: T

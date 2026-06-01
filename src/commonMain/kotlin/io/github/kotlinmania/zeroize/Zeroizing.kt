@@ -1,5 +1,9 @@
 // port-lint: source lib.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.zeroize
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * [Zeroizing] is a wrapper for any `Z: Zeroize` type which calls [zeroize] on
@@ -8,12 +12,16 @@ package io.github.kotlinmania.zeroize
  * The wrapper itself also implements [Zeroize] so it can participate in
  * recursive zeroization.
  */
-class Zeroizing<Z : Zeroize>
-/**
- * Move [value] inside a [Zeroizing] wrapper which ensures it will be
- * zeroized when it is closed.
- */
-constructor(val value: Z) : Zeroize, ZeroizeOnDrop, AutoCloseable {
+@HiddenFromObjC
+class Zeroizing<Z : Zeroize>(
+    /**
+     * Move [value] inside a [Zeroizing] wrapper which ensures it will be
+     * zeroized when it is closed.
+     */
+    val value: Z,
+) : Zeroize,
+    ZeroizeOnDrop,
+    AutoCloseable {
     public companion object {
         /**
          * Move [value] inside a [Zeroizing] wrapper which ensures it will be
