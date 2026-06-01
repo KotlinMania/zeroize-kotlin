@@ -198,6 +198,8 @@ fun installProjectAndroidSdk(execOperations: ExecOperations) {
 }
 
 writeAndroidLocalProperties()
+val projectExecOperations = serviceOf<ExecOperations>()
+installProjectAndroidSdk(projectExecOperations)
 
 val ensureAndroidSdk by tasks.registering {
     group = "setup"
@@ -549,12 +551,14 @@ val codeqlCompileJvm =
         val outDir = layout.buildDirectory.dir("classes/kotlin/codeql-jvm")
         val aarExtractDir = layout.buildDirectory.dir("codeql/android-aar")
         val sources = fileTree("src/commonMain/kotlin") { include("**/*.kt") }
+        val codeqlSourceDir = layout.buildDirectory.dir("generated/codeql-sources")
         val sentinelDir = layout.buildDirectory.dir("generated/codeql-empty-source")
         inputs.files(sources).withPathSensitivity(PathSensitivity.RELATIVE)
         inputs.files(codeqlSourceFiles).withNormalizer(ClasspathNormalizer::class.java)
         inputs.files(codeqlAarFiles).withNormalizer(ClasspathNormalizer::class.java)
         outputs.dir(outDir)
         outputs.dir(aarExtractDir)
+        outputs.dir(codeqlSourceDir)
         outputs.dir(sentinelDir)
         doFirst {
             outDir.get().asFile.mkdirs()
@@ -572,23 +576,43 @@ val codeqlCompileJvm =
             val fullClasspath =
                 (codeqlSourceFiles.get().resolve() + extractedJars)
                     .joinToString(File.pathSeparator) { it.absolutePath }
+            val sanitizedSourceRoot = codeqlSourceDir.get().asFile
+            sanitizedSourceRoot.deleteRecursively()
+            sanitizedSourceRoot.mkdirs()
+            val commonSourceRoot = layout.projectDirectory.dir("src/commonMain/kotlin").asFile
+            sources.files.forEach { source ->
+                val target = sanitizedSourceRoot.resolve(source.relativeTo(commonSourceRoot))
+                target.parentFile.mkdirs()
+                target.writeText(
+                    source
+                        .readLines()
+                        .filterNot {
+                            it.trim() == "import kotlin.native.HiddenFromObjC" ||
+                                it.trim() == "@HiddenFromObjC"
+                        }.joinToString(System.lineSeparator()),
+                )
+            }
             val sourceFiles =
-                sources.files.toMutableList().ifEmpty {
-                    val sentinelFile =
-                        sentinelDir
-                            .get()
-                            .asFile
-                            .resolve("io/github/kotlinmania/codeql/_CodeqlEmptySource.kt")
-                    sentinelFile.parentFile.mkdirs()
-                    sentinelFile.writeText(
-                        """
-                        package io.github.kotlinmania.codeql
+                sanitizedSourceRoot
+                    .walkTopDown()
+                    .filter { it.isFile && it.extension == "kt" }
+                    .toMutableList()
+                    .ifEmpty {
+                        val sentinelFile =
+                            sentinelDir
+                                .get()
+                                .asFile
+                                .resolve("io/github/kotlinmania/codeql/_CodeqlEmptySource.kt")
+                        sentinelFile.parentFile.mkdirs()
+                        sentinelFile.writeText(
+                            """
+                            package io.github.kotlinmania.codeql
 
-                        private object _CodeqlEmptySource
-                        """.trimIndent(),
-                    )
-                    mutableListOf(sentinelFile)
-                }
+                            private object _CodeqlEmptySource
+                            """.trimIndent(),
+                        )
+                        mutableListOf(sentinelFile)
+                    }
             args = listOf(
                 "-d",
                 outDir.get().asFile.absolutePath,
@@ -602,8 +626,6 @@ val codeqlCompileJvm =
                 codeqlLanguageVersion,
                 "-api-version",
                 codeqlApiVersion,
-                "-Xmulti-platform",
-                "-Xcommon-sources=${sourceFiles.joinToString(",") { it.absolutePath }}",
                 "-Xexpect-actual-classes",
             ) + commonOptIns.flatMap { listOf("-opt-in", it) } + sourceFiles.map { it.absolutePath }
         }
@@ -615,8 +637,11 @@ val codeqlCompileJvm =
 
 tasks.register("setupAndroidSdk") {
     group = "setup"
-    description = "Downloads and configures the project-local Android SDK. (Alias for ensureAndroidSdk)"
-    dependsOn("ensureAndroidSdk")
+    description = "Downloads and configures the project-local Android SDK."
+    outputs.upToDateWhen { false }
+    doLast {
+        installProjectAndroidSdk(projectExecOperations)
+    }
 }
 
 // Host-portable test runner. Uses findByName so it degrades gracefully on hosts
@@ -631,6 +656,12 @@ tasks.register("hostTests") {
         listOf("jvmTest", "macosArm64Test", "jsNodeTest", "wasmJsNodeTest", "wasmWasiNodeTest", "testAndroidHostTest")
             .mapNotNull { tasks.findByName(it) },
     )
+}
+
+tasks.register("test") {
+    group = "verification"
+    description = "Runs the documented host-portable tests and Swift Export smoke test."
+    dependsOn("hostTests", "swiftExportSmokeTest")
 }
 
 // Skip embedSwiftExportForXcode unless Xcode env is present or task is explicitly requested.
