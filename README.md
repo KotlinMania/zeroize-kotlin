@@ -95,7 +95,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 
 ```kotlin
 dependencies {
-    implementation("io.github.kotlinmania:zeroize-kotlin:0.1.1")
+    implementation("io.github.kotlinmania:zeroize-kotlin:0.1.0")
 }
 ```
 
