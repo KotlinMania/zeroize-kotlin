@@ -119,7 +119,7 @@ interface Zeroize {
  * common implementation keeps the operation explicit at each call site and
  * centralizes the post-write boundary here.
  */
-private fun atomicFence() {
+internal fun atomicFence() {
     val fence = AtomicInt(0)
     fence.store(0)
 }

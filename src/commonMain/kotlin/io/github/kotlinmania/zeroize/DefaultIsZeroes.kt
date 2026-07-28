@@ -18,3 +18,19 @@ interface DefaultIsZeroes<T : DefaultIsZeroes<T>> {
     /** The value used to overwrite this type when zeroizing. */
     val defaultZero: T
 }
+
+/**
+ * Zeroize an array whose element type implements [DefaultIsZeroes] by
+ * overwriting every element with the default zero value, then issuing a
+ * memory fence.
+ *
+ * This mirrors the upstream slice impl for DefaultIsZeroes which fills the
+ * slice with the default value via a volatile memset.
+ */
+@HiddenFromObjC
+fun <T : DefaultIsZeroes<T>> Array<T>.zeroizeDefaultIsZeroes() {
+    for (i in indices) {
+        this[i] = this[i].defaultZero
+    }
+    atomicFence()
+}
