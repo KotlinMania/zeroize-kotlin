@@ -1,6 +1,6 @@
 # port-lint Proposed Changes
 
-**Generated:** 2026-05-24
+**Generated:** 2026-07-22
 **Source:** tmp/zeroize/src
 **Target:** src/commonMain/kotlin/io/github/kotlinmania/zeroize
 
