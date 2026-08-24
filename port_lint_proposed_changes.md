@@ -1,8 +1,8 @@
 # port-lint Proposed Changes
 
-**Generated:** 2026-07-22
+**Generated:** 2026-08-23
 **Source:** tmp/zeroize/src
-**Target:** src/commonMain/kotlin/io/github/kotlinmania/zeroize
+**Target:** src/commonMain/kotlin
 
 These are review proposals only. They are emitted when a Rust -> Kotlin pair matches only after fallback normalization, so the existing `port-lint` header is not an exact provenance match.
 
