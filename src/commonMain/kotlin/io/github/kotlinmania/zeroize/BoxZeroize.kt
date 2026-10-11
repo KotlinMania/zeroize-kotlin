@@ -8,4 +8,3 @@ package io.github.kotlinmania.zeroize
 // are garbage-collected references, and slice-level zeroization is supported directly
 // via Array and MutableList extensions in Zeroize.kt. Additional specialized wrapper
 // implementations are omitted in Kotlin common code.
-
