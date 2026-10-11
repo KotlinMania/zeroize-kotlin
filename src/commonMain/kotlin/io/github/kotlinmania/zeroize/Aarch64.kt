@@ -7,4 +7,3 @@ package io.github.kotlinmania.zeroize
 // ARM NEON SIMD vector register types. These represent hardware-specific vector registers
 // without multiplatform common representation. Hardware vector register clearing is not portable
 // to Kotlin common code.
-

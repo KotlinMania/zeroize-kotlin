@@ -7,4 +7,3 @@ package io.github.kotlinmania.zeroize
 // In Kotlin, objects are managed on the managed heap without fixed C-style memory layouts
 // in multiplatform common code. Direct layout-level volatile byte setting is not portable
 // to Kotlin common code; types instead implement the Zeroize interface directly.
-
