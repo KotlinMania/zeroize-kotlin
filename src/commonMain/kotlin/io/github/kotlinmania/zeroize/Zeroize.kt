@@ -1,4 +1,3 @@
-// port-lint: source lib.rs
 @file:OptIn(
     ExperimentalUnsignedTypes::class,
     kotlin.experimental.ExperimentalObjCRefinement::class,
@@ -217,5 +216,22 @@ fun <Z : Zeroize> MutableList<Z>.zeroize() {
         element.zeroize()
     }
     clear()
+    atomicFence()
+}
+
+/**
+ * Perform a volatile write to the destination by invoking [block] followed by a memory fence.
+ */
+fun <T> volatileWrite(block: () -> T): T {
+    val result = block()
+    atomicFence()
+    return result
+}
+
+/**
+ * Perform a volatile set on an array by filling it with [value] followed by a memory fence.
+ */
+fun <T> Array<T>.volatileSet(value: T) {
+    fill(value)
     atomicFence()
 }
