@@ -1,4 +1,3 @@
-// port-lint: source lib.rs
 package io.github.kotlinmania.zeroize
 
 // The upstream crate uses a blanket impl: `impl<Z: DefaultIsZeroes> Zeroize

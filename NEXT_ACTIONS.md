@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 3/3 (100.0%)
-- **Function parity:** 8/17 matched (target 31) — 47.1%
-- **Class/type parity:** 5/8 matched (target 5) — 62.5%
-- **Combined symbol parity:** 13/25 matched (target 36) — 52.0%
-- **Average inline-code cosine:** 0.77 (function body across 3 matched files)
-- **Average documentation cosine:** 0.20 (doc text across 3 matched files)
+- **Files Present:** 2/3 (66.7%)
+- **Function parity:** 0/0 matched — N/A
+- **Class/type parity:** 0/0 matched — N/A
+- **Combined symbol parity:** 0/0 matched — N/A
+- **Average inline-code cosine:** 1.00 (function body across 2 matched files)
+- **Average documentation cosine:** 0.00 (doc text across 2 matched files)
 - **Cheat-zeroed Files:** 0
-- **Critical Issues:** 1 files with <0.60 function similarity
+- **Critical Issues:** 0 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -27,18 +27,7 @@ No missing high-value files detected.
 
 Every matched file is listed below with function and type symbol parity.
 
-### 1. lib
-
-- **Target:** `zeroize.Zeroize`
-- **Similarity:** 0.30
-- **Dependents:** 0
-- **Priority Score:** 122507.0
-- **Functions:** 8/17 matched (target 31)
-- **Missing functions:** `clone`, `clone_from`, `drop`, `serialize`, `deserialize`, `volatile_write`, `volatile_set`, `zeroize_flat_type`, `zeroize_or_on_drop`
-- **Types:** 5/8 matched (target 5)
-- **Missing types:** `Target`, `AssertZeroizeOnDrop`, `AssertZeroize`
-
-### 2. x86
+### 1. x86
 
 - **Target:** `zeroize.X86`
 - **Similarity:** 1.00
@@ -49,7 +38,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 0/0 matched
 - **Missing types:** _none_
 
-### 3. aarch64
+### 2. aarch64
 
 - **Target:** `zeroize.Aarch64`
 - **Similarity:** 1.00
@@ -68,4 +57,17 @@ For each file to be considered "complete":
 - All tests ported
 - Documentation ported
 - port-lint header present
+
+## Reexport / Wiring Modules
+
+These files match `reexport_modules` patterns in `.ast_distance_config.json`. They are filtered out of
+normal priority and missing-file ladders because they are wiring
+modules, not direct logic ports. Consult them for call-site routing;
+do not treat them as the next implementation target by default.
+
+### Missing
+
+| Source | Expected target | Deps | Source path | Expected path |
+|--------|-----------------|------|-------------|---------------|
+| `lib` | `Lib` | 0 | `lib.rs` | `Lib.kt` |
 
