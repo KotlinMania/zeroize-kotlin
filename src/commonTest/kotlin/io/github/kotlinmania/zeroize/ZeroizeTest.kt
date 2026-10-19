@@ -31,14 +31,7 @@ class ZeroizeTest {
         assertEquals(0uL, arr[0].value)
     }
 
-    @Test
-    fun zeroizeCheckZeroSizeTypes() {
-        // Kotlin does not expose memory layout introspection; Unit is the
-        // equivalent of the unit type and has no mutable storage to zeroize.
-        // in spirit — there is nothing to zeroize for zero-sized types.
-        val unit: Unit = Unit
-        // Nothing to assert — Unit has no mutable backing storage.
-    }
+    // Zero-sized memory layout checks cannot port because Kotlin exposes no object size metadata.
 
     @Test
     fun zeroizeCheckTuple() {
