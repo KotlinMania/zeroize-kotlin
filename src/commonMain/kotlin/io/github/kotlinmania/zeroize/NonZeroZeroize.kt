@@ -1,4 +1,3 @@
-// port-lint: source lib.rs
 package io.github.kotlinmania.zeroize
 
 // The upstream crate provides Zeroize impls for all NonZero* integer types
